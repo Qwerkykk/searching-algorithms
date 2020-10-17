@@ -13,7 +13,7 @@ The implementations can be found at SearchingAlgorithms.h/.cpp
 
 # Algorithms Examples
 
-- DFS:  702 
+- DFS:  702  cells visited
 
 ![](DFS-702.gif)
 
