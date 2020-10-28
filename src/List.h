@@ -2,17 +2,15 @@
 #define LIST_LIST_H
 
 #include <memory>
-#include <functional>
 #include <iostream>
-#include <utility>
-
+#include <cassert>
 
 
 template<typename T>
-struct Node {
+struct Node_ {
     std::shared_ptr<T> data;
-    std::weak_ptr<struct Node> leftNode;
-    std::shared_ptr<struct Node> rightNode;
+    std::weak_ptr<Node_> leftNode;
+    std::shared_ptr<Node_> rightNode;
 };
 
 
@@ -66,7 +64,7 @@ public:
     }
 
 private:
-    std::shared_ptr<struct Node<ValueType>> ptr_;
+    std::shared_ptr<Node_<ValueType>> ptr_;
 };
 
 template<typename T>
@@ -77,11 +75,11 @@ public:
     using ValueType = T;
     using SharedPointerType = std::shared_ptr<T>;
     using Iterator = ListIterator<List<T>>;
-    using SharedPointerNode = std::shared_ptr<Node<ValueType>>;
+    using SharedPointerNode = std::shared_ptr<Node_<ValueType>>;
 public:
     List() {
 
-        SharedPointerNode node = std::make_shared<Node<ValueType>>();
+        SharedPointerNode node = std::make_shared<Node_<ValueType>>();
         node->data = nullptr;
         node->leftNode.reset();
         node->rightNode = nullptr;
@@ -92,21 +90,21 @@ public:
     }
 
 
-    void Clear(){
+    void Clear() {
         head_ = tail_.lock();
         head_->leftNode.reset();
         size_ = 0;
     }
 
-    void PushFront(T&& data) {
-        PushFront(std::forward<T&>(data));
+    void PushFront(ValueType&& data) {
+        PushFront(std::forward<ValueType&>(data));
     }
 
-    void PushFront(T& data) {
+    void PushFront(ValueType& data) {
 
-        SharedPointerNode node = std::make_shared<struct Node<ValueType>>();
+        SharedPointerNode node = std::make_shared<Node_<ValueType>>();
 
-        node->data = std::make_shared<T>(data);
+        node->data = std::make_shared<ValueType>(data);
         node->rightNode = head_;
         ++size_;
 
@@ -130,15 +128,15 @@ public:
         return Iterator(tail_.lock());
     }
 
-    void PushBack(T&& data) {
-        PushBack(std::forward<T&>(data));
+    void PushBack(ValueType&& data) {
+        PushBack(std::forward<ValueType&>(data));
     }
 
-    void PushBack(T& data) {
-        SharedPointerNode node = std::make_shared<struct Node<ValueType>>();
-        node->data = std::make_shared<T>(data);
+    void PushBack(ValueType& data) {
+        SharedPointerNode node = std::make_shared<Node_<ValueType>>();
+        node->data = std::make_shared<ValueType>(data);
 
-        if (IsEmpty()) {
+        if (Empty()) {
             node->rightNode = tail_.lock();
             tail_.lock()->leftNode = node;
             head_ = node;
@@ -154,10 +152,7 @@ public:
     }
 
     void PopFront() {
-        if (IsEmpty()) {
-            std::cout << "Cannot pop from empty list\n";
-            exit(1);
-        }
+        assert(Empty() != true && "You cannot pop node from empty list");
 
         if (size_ == 1) {
             head_ = tail_.lock();
@@ -172,10 +167,7 @@ public:
     }
 
     void PopBack() {
-        if (IsEmpty()) {
-            std::cout << "Cannot pop from empty list\n";
-            exit(1);
-        }
+        assert(Empty() != true && "You cannot pop node from empty list");
 
         if (size_ == 1) {
             head_ = tail_.lock();
@@ -196,10 +188,7 @@ public:
     }
 
     void Remove(T& data) {
-        if (IsEmpty()) {
-            std::cout << "You cannot delete a node from an empty list" << std::endl;
-            exit(1);
-        }
+        assert(Empty() != true && "You cannot remove node from empty list");
 
         SharedPointerNode it = head_;
         while (it->rightNode != nullptr) {
@@ -222,21 +211,11 @@ public:
         }
     }
 
-    void sort() {
-        qsort();
-    }
-
-    void sort(const std::function<int8_t(T, T)>& compare_function) {
-        Compare = std::move(compare_function);
-        qsort();
-    }
-
-
     size_t Size() const {
         return size_;
     }
 
-    bool IsEmpty() const {
+    bool Empty() const {
         if (size_ == 0)
             return true;
         return false;
@@ -246,21 +225,9 @@ public:
 private:
 
 
-    std::shared_ptr<struct Node<ValueType>> head_;
-    std::weak_ptr<struct Node<ValueType>> tail_;
+    std::shared_ptr<Node_<ValueType>> head_;
+    std::weak_ptr<Node_<ValueType>> tail_;
     size_t size_;
-
-    std::function<int8_t(T, T)> Compare;
-
-    void Swap(SharedPointerNode node1, SharedPointerNode node2) {
-        SharedPointerType temp = node1->data;
-        node1->data = node2->data;
-        node2->data = temp;
-    }
-
-    void qsort() {
-
-    }
 
 };
 

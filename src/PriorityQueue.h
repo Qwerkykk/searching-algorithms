@@ -4,22 +4,23 @@
 
 #include <memory>
 #include <vector>
-
+#include <cassert>
 
 template<typename T>
 class PriorityQueue {
 public:
+    using ValueType = T;
+
     PriorityQueue() : size_(0) {}
 
+    void Push(ValueType&& data, int priority) {
 
-    void Push(T&& data, int priority) {
-
-        Push(std::forward<T&>(data), priority);
+        Push(std::forward<ValueType&>(data), priority);
     }
 
-    void Push(T& data, int priority) {
+    void Push(ValueType& data, int priority) {
         std::shared_ptr<struct Node> node = std::make_shared<struct Node>();
-        node->data = std::make_shared<T>(data);
+        node->data = std::make_shared<ValueType>(data);
         node->priority = priority;
 
         int childLocation, parentLocation;
@@ -28,7 +29,7 @@ public:
         childLocation = size_ - 1;
         parentLocation = (childLocation - 1) / 2;
 
-        if (queue.size() == size_-1)
+        if (queue.size() == size_ - 1)
             queue.push_back(node);
         else
             queue.at(childLocation) = node;
@@ -44,10 +45,8 @@ public:
     }
 
     T& Top() {
-        if (Empty()) {
-            std::cout << "Queue is empty\n";
-            exit(1);
-        }
+
+        assert(Empty() != true && "Priority Queue is empty");
         return *(queue.at(0)->data);
     }
 
@@ -56,10 +55,7 @@ public:
     }
 
     void Pop() {
-        if (Empty()) {
-            std::cout << "Queue is empty\n";
-            exit(1);
-        }
+        assert(Empty() != true && "Priority Queue is empty");
 
         if (size_ == 1) {
             size_--;
@@ -75,7 +71,7 @@ public:
 
     }
 
-    void UpdatePriority(T& data, int newPriority) {
+    void UpdatePriority(ValueType& data, int newPriority) {
         for (auto it = queue.begin(); it != queue.end(); it++) {
             if (data == *((*it)->data)) {
                 (*it)->priority = newPriority;
@@ -85,7 +81,7 @@ public:
         }
     }
 
-    bool Contains(T& data) {
+    bool Contains(ValueType& data) {
         for (size_t it = 0; it < size_; it++) {
             if (data == *(queue.at(it)->data))
                 return true;
@@ -129,7 +125,7 @@ private:
 
     struct Node {
         int priority;
-        std::shared_ptr<T> data;
+        std::shared_ptr<ValueType> data;
     };
 
     size_t size_;

@@ -3,32 +3,29 @@
 
 #include <memory>
 #include <iostream>
+#include <cassert>
 
 template<typename T>
 class Stack {
 public:
-
+    using ValueType = T;
     Stack() : size_(0), head_(nullptr) {}
 
-    T& Top() {
-        if(Empty()){
-            std::cout<<"Stack is empty\n";
-            exit(1);
-        }
-
+    ValueType& Top() {
+        assert(Empty() != true && "Stack is empty");
         return *(head_->data);
     }
 
 
-    void Push(T&& data) {
+    void Push(ValueType&& data) {
 
         Push(std::forward<T&>(data));
     }
 
-    void Push(T& data) {
+    void Push(ValueType& data) {
         std::shared_ptr<struct Node> node = std::make_shared<struct Node>();
 
-        node->data = std::make_shared<T>(data);
+        node->data = std::make_shared<ValueType>(data);
         node->nextNode = nullptr;
 
 
@@ -44,21 +41,19 @@ public:
     }
 
     void Pop() {
-        if (Empty()) {
-            std::cout << "Cannot Pop from empty Stack\n";
-            exit(1);
-        }
+        assert(Empty() != true && "Stack is empty");
 
         head_ = head_->nextNode;
         size_--;
     }
 
-    bool Contains(T&& data) {
+    bool Contains(ValueType&& data) {
 
-        return Contains(std::forward<T&>(data));
+        return Contains(std::forward<ValueType&>(data));
     }
 
-    bool Contains(T& data){
+    bool Contains(ValueType& data){
+
         auto it = head_;
 
         while (it!= nullptr){
@@ -83,7 +78,7 @@ public:
 
 private:
     struct Node {
-        std::shared_ptr<T> data;
+        std::shared_ptr<ValueType> data;
         std::shared_ptr<struct Node> nextNode;
     };
     size_t size_;

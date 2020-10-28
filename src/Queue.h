@@ -4,42 +4,34 @@
 
 #include <iostream>
 #include <memory>
+#include <cassert>
 
 template<typename T>
 class Queue {
 public:
+    using ValueType = T;
+
     Queue() : size_(0), head_(nullptr) , tail_(nullptr){}
 
-
-
-
     T& Front() {
-        if(Empty()){
-            std::cout<<"Queue is empty\n";
-            exit(1);
-        }
-
+        assert(Empty() != true && "Queue is empty");
         return *(head_->data);
     }
 
     T& Back() {
-        if(Empty()){
-            std::cout<<"Queue is empty\n";
-            exit(1);
-        }
-
+        assert(Empty() != true && "Queue is empty");
         return *(tail_->data);
     }
 
-    void Push(T&& data) {
+    void Push(ValueType&& data) {
 
-        Push(std::forward<T&>(data));
+        Push(std::forward<ValueType&>(data));
     }
 
-    void Push(T& data) {
+    void Push(ValueType& data) {
         std::shared_ptr<struct Node> node = std::make_shared<struct Node>();
 
-        node->data = std::make_shared<T>(data);
+        node->data = std::make_shared<ValueType>(data);
         node->nextNode = nullptr;
 
 
@@ -57,10 +49,7 @@ public:
 
 
     void Pop() {
-        if (Empty()) {
-            std::cout << "Cannot Pop from empty Queue\n";
-            exit(1);
-        }
+        assert(Empty() != true && "Queue is empty");
 
         head_ = head_->nextNode;
         if(size_ == 1)
@@ -68,12 +57,12 @@ public:
         size_--;
     }
 
-    bool Contains(T&& data) {
+    bool Contains(ValueType&& data) {
 
         return Contains(std::forward<T&>(data));
     }
 
-    bool Contains(T& data){
+    bool Contains(ValueType& data){
         auto it = head_;
 
         while (it!= nullptr){
@@ -97,7 +86,7 @@ public:
 
 private:
     struct Node {
-        std::shared_ptr<T> data;
+        std::shared_ptr<ValueType> data;
         std::shared_ptr<struct Node> nextNode;
     };
     size_t size_;
